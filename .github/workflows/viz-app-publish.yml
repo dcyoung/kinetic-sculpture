@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: VizApp Build and Deploy
 on:
   push:
     branches:
@@ -11,7 +11,12 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
+      - name: Install and Build
+        run: |
+          cd viz-app
+          npm install
+          npm run build
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: src # The folder the action should deploy.
+          folder: viz-app/dist # The folder the action should deploy.

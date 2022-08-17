@@ -1,0 +1,31 @@
+{
+    "name": "kinetic-sculpture",
+    "version": "0.0.1",
+    "description": "",
+    "private": true,
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "webpack --config webpack.prod.js",
+        "start": "webpack serve --open --config webpack.dev.js",
+        "server": "node server.js",
+        "deploy": "npm run build && gh-pages -d dist"
+    },
+    "author": "David Young",
+    "license": "ISC",
+    "dependencies": {
+        "@types/three": "^0.143.0",
+        "three": "^0.143.0"
+    },
+    "devDependencies": {
+        "express": "^4.18.1",
+        "gh-pages": "^3.1.0",
+        "html-webpack-plugin": "^5.5.0",
+        "ts-loader": "^9.3.1",
+        "typescript": "^4.7.4",
+        "webpack": "^5.74.0",
+        "webpack-cli": "^4.10.0",
+        "webpack-dev-middleware": "^5.3.3",
+        "webpack-dev-server": "^4.10.0",
+        "webpack-merge": "^5.8.0"
+    }
+}
