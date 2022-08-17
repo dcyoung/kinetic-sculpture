@@ -15,7 +15,7 @@ jobs:
         run: |
           cd viz-app
           npm install
-          npm run build
+          npm run build:gh-pages
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:

@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: './src/index.ts',
@@ -7,12 +8,16 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'Kinetic Sculpture',
         }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'src/assets', to: 'assets' }
+            ]
+        })
     ],
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
         clean: true,
-        publicPath: '/',
     },
     module: {
         rules: [

@@ -1,23 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { HDRCubeTextureLoader } from 'three/examples/jsm/loaders/HDRCubeTextureLoader.js';
-import TEX_CARBON from "./resources/Carbon.png";
-import TEX_CARBON_NORMAL from "./resources/Carbon_Normal.png";
-import TEX_WATER_NORMAL from "./resources/Water_1_M_Normal.jpg";
-import TEX_SCRATCHED_GOLD from "./resources/Scratched_gold_01_1K_Normal.png";
-import HDR_PX from "./resources/pisaHDR/px.hdr";
-import HDR_NX from "./resources/pisaHDR/nx.hdr";
-import HDR_PY from "./resources/pisaHDR/py.hdr";
-import HDR_NY from "./resources/pisaHDR/ny.hdr";
-import HDR_PZ from "./resources/pisaHDR/pz.hdr";
-import HDR_NZ from "./resources/pisaHDR/nz.hdr";
 import { getAngleAtTime, getRadiusAtT, linspace, polar2Cart } from "./helpers";
 import { Ball, PulleyWheel } from "./models";
 
+const ASSETS_ROOT_PATH = "assets/";
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 5;
-
 
 // Lighting
 const particleLight = new THREE.Mesh(
@@ -26,7 +16,6 @@ const particleLight = new THREE.Mesh(
 );
 particleLight.add(new THREE.PointLight(0xffffff, 1));
 scene.add(particleLight);
-
 
 // Renderer
 const renderer = new THREE.WebGLRenderer();
@@ -49,20 +38,27 @@ const controls = new OrbitControls(camera, renderer.domElement);
 
 // Environment Map
 new HDRCubeTextureLoader()
-  .load([HDR_PX, HDR_NX, HDR_PY, HDR_NY, HDR_PZ, HDR_NZ,], function (texture) {
+  .load([
+    `${ASSETS_ROOT_PATH}pisaHDR/nx.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/ny.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/nz.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/px.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/py.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/pz.hdr`,
+  ], function (texture) {
     scene.background = texture;
     scene.environment = texture;
   });
 
 // Materials
 const textureLoader = new THREE.TextureLoader();
-const carbonDiffuse = textureLoader.load(TEX_CARBON);
+const carbonDiffuse = textureLoader.load(`${ASSETS_ROOT_PATH}carbon.png`);
 carbonDiffuse.encoding = THREE.sRGBEncoding;
 carbonDiffuse.wrapS = THREE.RepeatWrapping;
 carbonDiffuse.wrapT = THREE.RepeatWrapping;
 carbonDiffuse.repeat.x = 10;
 carbonDiffuse.repeat.y = 10;
-const carbonNormalMap = textureLoader.load(TEX_CARBON_NORMAL);
+const carbonNormalMap = textureLoader.load(`${ASSETS_ROOT_PATH}carbon_normal.png`);
 carbonNormalMap.wrapS = THREE.RepeatWrapping;
 carbonNormalMap.wrapT = THREE.RepeatWrapping;
 
@@ -74,8 +70,8 @@ const MATERIAL_CARBON = new THREE.MeshPhysicalMaterial({
   normalMap: carbonNormalMap
 });
 
-const normalMapRoughMetal = textureLoader.load(TEX_WATER_NORMAL);
-const clearcoatNormalMap = textureLoader.load(TEX_SCRATCHED_GOLD);
+const normalMapRoughMetal = textureLoader.load(`${ASSETS_ROOT_PATH}water_normal.jpg`);
+const clearcoatNormalMap = textureLoader.load(`${ASSETS_ROOT_PATH}gold-scratched-normal.png`);
 const MATERIAL_METAL_RED = new THREE.MeshPhysicalMaterial({
   clearcoat: 1.0,
   metalness: 1.0,
