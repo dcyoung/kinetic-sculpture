@@ -24,9 +24,6 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'https://unpkg.com/three@0.142.0/examples/jsm/controls/OrbitControls.js';
         import { HDRCubeTextureLoader } from 'https://unpkg.com/three@0.142.0/examples/jsm/loaders/HDRCubeTextureLoader.js';
-        // import { OrbitControls } from 'https://cdn.skypack.dev/three@0.142.0/examples/jsm/controls/OrbitControls.js';
-        // import { HDRCubeTextureLoader } from 'https://cdn.skypack.dev/three@0.142.0/examples/jsm/loaders/HDRCubeTextureLoader.js';
-
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -57,23 +54,7 @@
         // Controls 
         const controls = new OrbitControls(camera, renderer.domElement);
 
-        // Environment setup
-        // const pmremGenerator = new THREE.PMREMGenerator(renderer);
-        // THREE.DefaultLoadingManager.onLoad = function () {
-        //     pmremGenerator.dispose();
-        // };
-        // let cubeRenderTarget;
-        // let cubeMap = new THREE.CubeTextureLoader()
-        //     .setPath('https://raw.githubusercontent.com/mrdoob/three.js/191a1ef699a5d53de2cd645c667e7fee184a18fd/examples/textures/cube/skyboxsun25deg/')
-        //     .load(['px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg'], function () {
-        //         cubeRenderTarget = pmremGenerator.fromCubemap(cubeMap);
-        //         cubeMap.encoding = THREE.sRGBEncoding;
-        //         cubeMap.needsUpdate = true;
-        //     });
-        // pmremGenerator.compileCubemapShader();
-        // scene.background = cubeMap;
-
-
+        // Environment Map
         new HDRCubeTextureLoader()
             .setPath('https://raw.githubusercontent.com/mrdoob/three.js/191a1ef699a5d53de2cd645c667e7fee184a18fd/examples/textures/cube/pisaHDR/')
             .load(['px.hdr', 'nx.hdr', 'py.hdr', 'ny.hdr', 'pz.hdr', 'nz.hdr'], function (texture) {
@@ -81,6 +62,7 @@
                 scene.environment = texture;
             });
 
+        // Materials
         const textureLoader = new THREE.TextureLoader();
         const carbonDiffuse = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/carbon/Carbon.png');
         carbonDiffuse.encoding = THREE.sRGBEncoding;
@@ -126,6 +108,7 @@
             clearcoatNormalScale: new THREE.Vector2(2.0, - 2.0)
         });
 
+        // Helpers
         const ROTATION_SPEED_RAD_PER_SEC = Math.PI / 4;
         const polar2Cart = (r, thetaRad) => [r * Math.cos(thetaRad), r * Math.sin(thetaRad)];
         function linspace(start, stop, num, endpoint = true) {
@@ -133,7 +116,6 @@
             const step = (stop - start) / div;
             return Array.from({ length: num }, (_, i) => start + step * i);
         }
-
         function getAngleAtTime(t_sec) {
             const periodSec = 2 * Math.PI / ROTATION_SPEED_RAD_PER_SEC;
             return ROTATION_SPEED_RAD_PER_SEC * (t_sec % periodSec);
@@ -144,15 +126,13 @@
             return 1.5 + Math.sin(thetaAtT);
         }
 
-        // Geometry
+        // Create the CAM mechanism
         const verts = [];
         for (const theta of linspace(0, 2 * Math.PI, 100, false)) {
             verts.push(
                 polar2Cart(getRadiusAtT(theta, 0), theta)
             );
         }
-
-        const cam = new THREE.Group();
         const camShape = new THREE.Shape();
         for (const [x, y] of verts) {
             camShape.lineTo(x, y);
@@ -171,6 +151,7 @@
             MATERIAL_METAL_RED
         );
         camMesh.rotation.x = Math.PI / 2;
+        const cam = new THREE.Group();
         cam.add(camMesh);
         cam.add(new THREE.AxesHelper(8));
         scene.add(cam);
@@ -235,6 +216,8 @@
 
         }
 
+
+        // Create the pulley wheels
         const pulleyWheels = [];
         const nRows = 5;
         const nCols = 10;
@@ -255,8 +238,9 @@
             scene.add(pulleyWheel);
         }
 
-        const clock = new THREE.Clock();
 
+        // Animate the mechanism
+        const clock = new THREE.Clock();
         function animate() {
             const t_sec = clock.getElapsedTime();
             // let delta = clock.getDelta();
@@ -270,7 +254,6 @@
             particleLight.position.x = Math.sin(timer * 7) * 300;
             particleLight.position.y = Math.cos(timer * 5) * 400;
             particleLight.position.z = Math.cos(timer * 3) * 300;
-
 
             renderer.render(scene, camera);
         };
