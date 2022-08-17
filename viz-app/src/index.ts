@@ -39,12 +39,12 @@ const controls = new OrbitControls(camera, renderer.domElement);
 // Environment Map
 new HDRCubeTextureLoader()
   .load([
-    `${ASSETS_ROOT_PATH}pisaHDR/nx.hdr`,
-    `${ASSETS_ROOT_PATH}pisaHDR/ny.hdr`,
-    `${ASSETS_ROOT_PATH}pisaHDR/nz.hdr`,
     `${ASSETS_ROOT_PATH}pisaHDR/px.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/nx.hdr`,
     `${ASSETS_ROOT_PATH}pisaHDR/py.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/ny.hdr`,
     `${ASSETS_ROOT_PATH}pisaHDR/pz.hdr`,
+    `${ASSETS_ROOT_PATH}pisaHDR/nz.hdr`,
   ], function (texture) {
     scene.background = texture;
     scene.environment = texture;
