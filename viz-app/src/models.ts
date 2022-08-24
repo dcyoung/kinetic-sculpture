@@ -67,5 +67,4 @@ class PulleyWheel extends THREE.Group {
     }
 }
 
-
 export { Ball, PulleyWheel };

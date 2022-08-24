@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { HDRCubeTextureLoader } from 'three/examples/jsm/loaders/HDRCubeTextureLoader.js';
+// import { HDRCubeTextureLoader } from 'three/examples/jsm/loaders/HDRCubeTextureLoader.js';
+import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { getAngleAtTime, getRadiusAtT, linspace, polar2Cart } from "./helpers";
 import { Ball, PulleyWheel } from "./models";
 
@@ -37,18 +38,27 @@ window.addEventListener('resize', onWindowResize, false);
 const controls = new OrbitControls(camera, renderer.domElement);
 
 // Environment Map
-new HDRCubeTextureLoader()
-  .load([
-    `${ASSETS_ROOT_PATH}pisaHDR/px.hdr`,
-    `${ASSETS_ROOT_PATH}pisaHDR/nx.hdr`,
-    `${ASSETS_ROOT_PATH}pisaHDR/py.hdr`,
-    `${ASSETS_ROOT_PATH}pisaHDR/ny.hdr`,
-    `${ASSETS_ROOT_PATH}pisaHDR/pz.hdr`,
-    `${ASSETS_ROOT_PATH}pisaHDR/nz.hdr`,
-  ], function (texture) {
-    scene.background = texture;
-    scene.environment = texture;
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+pmremGenerator.compileEquirectangularShader();
+new EXRLoader()
+  .load(`${ASSETS_ROOT_PATH}env-maps/large_corridor_4k.exr`, function (texture) {
+    let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+    scene.environment = exrCubeRenderTarget.texture;
+    scene.background = exrCubeRenderTarget.texture;
+    texture.dispose();
   });
+// new HDRCubeTextureLoader()
+//   .load([
+//     `${ASSETS_ROOT_PATH}pisaHDR/px.hdr`,
+//     `${ASSETS_ROOT_PATH}pisaHDR/nx.hdr`,
+//     `${ASSETS_ROOT_PATH}pisaHDR/py.hdr`,
+//     `${ASSETS_ROOT_PATH}pisaHDR/ny.hdr`,
+//     `${ASSETS_ROOT_PATH}pisaHDR/pz.hdr`,
+//     `${ASSETS_ROOT_PATH}pisaHDR/nz.hdr`,
+//   ], function (texture) {
+//     scene.background = texture;
+//     scene.environment = texture;
+//   });
 
 // Materials
 const textureLoader = new THREE.TextureLoader();
@@ -95,6 +105,8 @@ const MATERIAL_METAL_GRAY = new THREE.MeshPhysicalMaterial({
   clearcoatNormalScale: new THREE.Vector2(2.0, - 2.0)
 });
 
+
+const sculpture = new THREE.Group();
 // Create the CAM mechanism
 const verts = [];
 for (const theta of linspace(0, 2 * Math.PI, 100, false)) {
@@ -123,7 +135,7 @@ camMesh.rotation.x = Math.PI / 2;
 const cam = new THREE.Group();
 cam.add(camMesh);
 cam.add(new THREE.AxesHelper(8));
-scene.add(cam);
+sculpture.add(cam);
 
 // Create the pulley wheels
 const pulleyWheels: PulleyWheel[] = [];
@@ -143,8 +155,11 @@ for (let col = 0; col < nCols; col++) {
 
   const pulleyWheel = new PulleyWheel(MATERIAL_METAL_GRAY, col * angularSpacing, balls);
   pulleyWheels.push(pulleyWheel);
-  scene.add(pulleyWheel);
+  sculpture.add(pulleyWheel);
 }
+
+sculpture.position.y += 3;
+scene.add(sculpture);
 
 // Animate the mechanism
 const clock = new THREE.Clock();
