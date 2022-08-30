@@ -5,6 +5,15 @@ import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { getAngleAtTime, getRadiusAtT, linspace, polar2Cart } from "./helpers";
 import { Ball, PulleyWheel } from "./models";
 
+const loadingManager = new THREE.LoadingManager();
+loadingManager.onProgress = (url, loaded, total) => {
+  const progressBar = document.getElementById("progress-bar") as HTMLProgressElement;
+  progressBar.value = (loaded/total) * 100;
+};
+loadingManager.onLoad = () => {
+  document.querySelector<HTMLElement>('.progress-bar-container').style.display = 'none';
+}
+
 const ASSETS_ROOT_PATH = "assets/";
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -40,7 +49,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 // Environment Map
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
 pmremGenerator.compileEquirectangularShader();
-new EXRLoader()
+new EXRLoader(loadingManager)
   .load(`${ASSETS_ROOT_PATH}env-maps/large_corridor_4k.exr`, function (texture) {
     let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
     scene.environment = exrCubeRenderTarget.texture;
@@ -61,14 +70,14 @@ new EXRLoader()
 //   });
 
 // Materials
-const textureLoader = new THREE.TextureLoader();
+const textureLoader = new THREE.TextureLoader(loadingManager);
 const carbonDiffuse = textureLoader.load(`${ASSETS_ROOT_PATH}carbon.png`);
 carbonDiffuse.encoding = THREE.sRGBEncoding;
 carbonDiffuse.wrapS = THREE.RepeatWrapping;
 carbonDiffuse.wrapT = THREE.RepeatWrapping;
 carbonDiffuse.repeat.x = 10;
 carbonDiffuse.repeat.y = 10;
-const carbonNormalMap = textureLoader.load(`${ASSETS_ROOT_PATH}carbon_normal.png`);
+const carbonNormalMap = textureLoader.load(`${ASSETS_ROOT_PATH}carbon-normal.png`);
 carbonNormalMap.wrapS = THREE.RepeatWrapping;
 carbonNormalMap.wrapT = THREE.RepeatWrapping;
 
@@ -80,7 +89,7 @@ const MATERIAL_CARBON = new THREE.MeshPhysicalMaterial({
   normalMap: carbonNormalMap
 });
 
-const normalMapRoughMetal = textureLoader.load(`${ASSETS_ROOT_PATH}water_normal.jpg`);
+const normalMapRoughMetal = textureLoader.load(`${ASSETS_ROOT_PATH}water-normal.jpg`);
 const clearcoatNormalMap = textureLoader.load(`${ASSETS_ROOT_PATH}gold-scratched-normal.png`);
 const MATERIAL_METAL_RED = new THREE.MeshPhysicalMaterial({
   clearcoat: 1.0,
